@@ -12,12 +12,14 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Enable Remote Desktop (RDP)
+      - name: Enable Remote Desktop & Set Password
         run: |
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
-          Write-Host "RDP Enabled Successfully."
+          net user runneradmin 7738617273 /add 2>$null
+          net user runneradmin 7738617273
+          net localgroup administrators runneradmin /add
+          Write-Host "RDP Enabled Successfully with custom password."
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
@@ -29,6 +31,5 @@ jobs:
         shell: pwsh
         run: |
           Write-Host "Tailscale connected! You can now connect via RDP using the runner's Tailscale IP."
-          # Keep the session alive for 6 hours (21600 seconds) or until manually cancelled
           Start-Sleep -Seconds 21600
           
