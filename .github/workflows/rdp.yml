@@ -16,10 +16,8 @@ jobs:
         run: |
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
-          net user runneradmin 7738617273 /add 2>$null
           net user runneradmin 7738617273
-          net localgroup administrators runneradmin /add
-          Write-Host "RDP Enabled Successfully with custom password."
+          Write-Host "RDP Enabled and Password Updated Successfully."
 
       - name: Connect to Tailscale
         uses: tailscale/github-action@v4
