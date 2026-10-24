@@ -17,6 +17,9 @@ jobs:
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
           
+          # Explicitly allow RDP on all profiles (fixes Tailscale Public network block)
+          New-NetFirewallRule -DisplayName "RDP-Inbound-AllProfiles" -Profile Any -Direction Inbound -Action Allow -Protocol TCP -LocalPort 3389
+          
           # Disable Windows password complexity so numeric passwords (7738617273) are accepted
           $cfg = "$env:temp\sec.cfg"
           secedit /export /cfg $cfg
