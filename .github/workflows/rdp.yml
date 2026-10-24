@@ -1,0 +1,34 @@
+name: Tailscale RDP
+
+on:
+  workflow_dispatch: # Allows manual trigger from the Actions tab
+
+jobs:
+  rdp-session:
+    runs-on: windows-latest
+    timeout-minutes: 360 # Maximum allowed job duration (6 hours)
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Enable Remote Desktop (RDP)
+        run: |
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name "fDenyTSConnections" -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -Name "UserAuthentication" -Value 1
+          Write-Host "RDP Enabled Successfully."
+
+      - name: Connect to Tailscale
+        uses: tailscale/github-action@v2
+        with:
+          authkey: ${{ secrets.TAILSCALE_AUTH_KEY }}
+          version: latest
+
+      - name: Keep Runner Alive
+        shell: pwsh
+        run: |
+          Write-Host "Tailscale connected! You can now connect via RDP using the runner's Tailscale IP."
+          # Keep the session alive for 6 hours (21600 seconds) or until manually cancelled
+          Start-Sleep -Seconds 21600
+          
